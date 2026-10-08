@@ -25,13 +25,13 @@ public final class TileSpawner {
             throw new IllegalArgumentException("Доска не должна быть null");
         }
 
-        List<Position> emptyPositions = board.getEmptyPositions();
+        List<Board.Position> emptyPositions = board.getEmptyPositions();
         if (emptyPositions.isEmpty()) {
             throw new IllegalStateException("На поле нет свободных клеток");
         }
 
         int randomIndex = random.nextInt(emptyPositions.size());
-        Position position = emptyPositions.get(randomIndex);
+        Board.Position position = emptyPositions.get(randomIndex);
         int cashback = selectCashback();
 
         board.placeTile(position.row(), position.column(), cashback);

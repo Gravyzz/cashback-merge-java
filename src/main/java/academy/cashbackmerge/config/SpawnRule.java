@@ -11,8 +11,8 @@ public record SpawnRule(int cashback, BigDecimal probability) {
             throw new IllegalArgumentException("Кешбэк должен быть положительный");
         }
 
-        if (probability.compareTo(BigDecimal.ZERO) < 0 || probability.compareTo(BigDecimal.ONE) > 0) {
-            throw new IllegalArgumentException("Вероятности указаны вне диапазона");
+        if (probability.compareTo(BigDecimal.ZERO) <= 0 || probability.compareTo(BigDecimal.ONE) > 0) {
+            throw new IllegalArgumentException("Вероятность должна быть больше 0 и не больше 1");
         }
     }
 }

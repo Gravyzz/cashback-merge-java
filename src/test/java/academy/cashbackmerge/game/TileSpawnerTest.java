@@ -14,17 +14,38 @@ import org.junit.jupiter.api.Test;
 class TileSpawnerTest {
 
     @Test
+    @DisplayName("Спавнер заполняет единственную свободную клетку поля 5 на 5")
+    void spawnUsesLastEmptyCellOnFiveByFiveBoard() {
+        Board board = new Board(5);
+        for (int row = 0; row < board.getSize(); row++) {
+            for (int column = 0; column < board.getSize(); column++) {
+                if (row != 4 || column != 4) {
+                    board.placeTile(row, column, 1);
+                }
+            }
+        }
+        TileSpawner spawner = new TileSpawner(List.of(new SpawnRule(2, BigDecimal.ONE)), new Random(42));
+        spawner.spawn(board);
+        assertThat(board.getEmptyPositions()).isEmpty();
+        for (int row = 0; row < board.getSize(); row++) {
+            for (int column = 0; column < board.getSize(); column++) {
+                assertThat(board.get(row, column)).isEqualTo(row == 4 && column == 4 ? 2 : 1);
+            }
+        }
+    }
+
+    @Test
     @DisplayName("Спавнер добавляет одну настроенную плитку на пустое поле")
     void spawnAddsOneConfiguredTileToEmptyBoard() {
         List<SpawnRule> spawnRules = List.of(new SpawnRule(1, BigDecimal.ONE));
         Random random = new Random(42);
-        Board board = new Board();
+        Board board = new Board(4);
         TileSpawner spawner = new TileSpawner(spawnRules, random);
         spawner.spawn(board);
         assertThat(board.getEmptyPositions()).hasSize(15);
         int totalCashback = 0;
-        for (int row = 0; row < Board.SIZE; row++) {
-            for (int column = 0; column < Board.SIZE; column++) {
+        for (int row = 0; row < board.getSize(); row++) {
+            for (int column = 0; column < board.getSize(); column++) {
                 totalCashback += board.get(row, column);
             }
         }
@@ -36,14 +57,14 @@ class TileSpawnerTest {
     void twoSpawnsOccupyTwoDifferentCells() {
         List<SpawnRule> spawnRules = List.of(new SpawnRule(1, BigDecimal.ONE));
         Random random = new Random(42);
-        Board board = new Board();
+        Board board = new Board(4);
         TileSpawner spawner = new TileSpawner(spawnRules, random);
         spawner.spawn(board);
         spawner.spawn(board);
         assertThat(board.getEmptyPositions()).hasSize(14);
         int totalCashback = 0;
-        for (int row = 0; row < Board.SIZE; row++) {
-            for (int column = 0; column < Board.SIZE; column++) {
+        for (int row = 0; row < board.getSize(); row++) {
+            for (int column = 0; column < board.getSize(); column++) {
                 totalCashback += board.get(row, column);
             }
         }
@@ -54,9 +75,9 @@ class TileSpawnerTest {
     @DisplayName("Нельзя добавить плитку на заполненное поле")
     void spawnOnFullBoardIsRejected() {
 
-        Board board = new Board();
-        for (int row = 0; row < Board.SIZE; row++) {
-            for (int column = 0; column < Board.SIZE; column++) {
+        Board board = new Board(4);
+        for (int row = 0; row < board.getSize(); row++) {
+            for (int column = 0; column < board.getSize(); column++) {
                 board.placeTile(row, column, 1);
             }
         }

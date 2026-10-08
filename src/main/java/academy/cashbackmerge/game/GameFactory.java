@@ -13,7 +13,7 @@ public final class GameFactory {
             throw new IllegalArgumentException("Конфиг должен существовать");
         }
         Random random = new Random(seed);
-        Board board = new Board();
+        Board board = new Board(config.getBoardSize());
         TileSpawner spawner = new TileSpawner(config.getSpawnRules(), random);
         for (int i = 0; i < INITIAL_TILES; i++) {
             spawner.spawn(board);

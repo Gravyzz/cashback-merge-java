@@ -22,4 +22,10 @@ class SpawnRuleTest {
     void probabilityAboveOneIsRejected() {
         assertThatThrownBy(() -> new SpawnRule(1, new BigDecimal("1.20"))).isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    @DisplayName("Нулевая вероятность отклоняется")
+    void zeroProbabilityIsRejected() {
+        assertThatThrownBy(() -> new SpawnRule(1, BigDecimal.ZERO)).isInstanceOf(IllegalArgumentException.class);
+    }
 }

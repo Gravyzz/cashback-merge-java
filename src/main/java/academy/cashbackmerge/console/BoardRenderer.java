@@ -9,9 +9,10 @@ public final class BoardRenderer {
         if (board == null) {
             throw new IllegalArgumentException("Доска должна быть не null");
         }
+        int size = board.getSize();
         StringBuilder result = new StringBuilder();
-        for (int row = 0; row < Board.SIZE; row++) {
-            for (int column = 0; column < Board.SIZE; column++) {
+        for (int row = 0; row < size; row++) {
+            for (int column = 0; column < size; column++) {
                 if (column > 0) {
                     result.append(' ');
                 }
@@ -21,7 +22,7 @@ public final class BoardRenderer {
                     result.append(board.get(row, column)).append('%');
                 }
             }
-            if (row < Board.SIZE - 1) {
+            if (row < size - 1) {
                 result.append(System.lineSeparator());
             }
         }

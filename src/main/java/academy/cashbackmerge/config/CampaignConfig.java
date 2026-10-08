@@ -1,29 +1,34 @@
 package academy.cashbackmerge.config;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public final class CampaignConfig {
-    private static final int REQUIRED_BOARD_SIZE = 4;
     private final int boardSize;
     private final int movesLimit;
     private final List<SpawnRule> spawnRules;
 
     public CampaignConfig(int boardSize, int movesLimit, List<SpawnRule> spawnRules) {
-        if (boardSize != REQUIRED_BOARD_SIZE) {
-            throw new IllegalArgumentException("Размер стороны поля допускается только " + REQUIRED_BOARD_SIZE);
+        if (boardSize < 2) {
+            throw new IllegalArgumentException("Сторона поля должна быть не меньше 2: boardSize=" + boardSize);
         }
         if (movesLimit <= 0) {
             throw new IllegalArgumentException("Лимит ходов должен быть больше 0");
         }
         if (spawnRules == null || spawnRules.isEmpty()) {
-            throw new IllegalArgumentException("Список должен быть не пуст");
+            throw new IllegalArgumentException("spawnRules не должен быть пустым");
         }
 
         BigDecimal probability = BigDecimal.ZERO;
+        Set<Integer> seenCashbacks = new HashSet<>();
         for (SpawnRule spawnRule : spawnRules) {
             if (spawnRule == null) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("spawnRules не должен содержать null");
+            }
+            if (!seenCashbacks.add(spawnRule.cashback())) {
+                throw new IllegalArgumentException("Повторяется cashback в spawnRules: " + spawnRule.cashback());
             }
             probability = probability.add(spawnRule.probability());
         }
