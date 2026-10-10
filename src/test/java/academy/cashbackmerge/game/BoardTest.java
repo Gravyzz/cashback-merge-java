@@ -127,4 +127,72 @@ class BoardTest {
         assertThatThrownBy(() -> board.placeTile(1, 2, 2)).isInstanceOf(IllegalStateException.class);
         assertThat(board.get(1, 2)).isEqualTo(4);
     }
+
+    @Test
+    @DisplayName("Замена содержимого поля обновляет плитки и освобождает клетки")
+    void replacingCellsUpdatesTilesAndClearsCells() {
+        Board board = new Board(2);
+        board.placeTile(0, 0, 1);
+        board.placeTile(1, 1, 2);
+        int[][] newCells = {
+            {4, 0},
+            {2, 0}
+        };
+        board.replaceCells(newCells);
+        assertThat(board.get(0, 0)).isEqualTo(4);
+        assertThat(board.get(0, 1)).isEqualTo(0);
+        assertThat(board.get(1, 0)).isEqualTo(2);
+        assertThat(board.get(1, 1)).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("Изменение переданного массива после замены не меняет поле")
+    void changingReplacementArrayDoesNotChangeBoard() {
+        Board board = new Board(2);
+        int[][] newCells = {
+            {4, 0},
+            {2, 0}
+        };
+        board.replaceCells(newCells);
+        newCells[0][0] = 8;
+        assertThat(board.get(0, 0)).isEqualTo(4);
+    }
+
+    @Test
+    @DisplayName("Ошибка в последней клетке при замене не меняет исходное поле")
+    void invalidReplacementLeavesBoardUnchanged() {
+        Board board = new Board(2);
+        board.placeTile(0, 0, 1);
+        board.placeTile(1, 1, 2);
+        int[][] newCells = {
+            {4, 4},
+            {4, -1}
+        };
+        assertThatThrownBy(() -> board.replaceCells(newCells)).isInstanceOf(IllegalArgumentException.class);
+        assertThat(board.get(0, 0)).isEqualTo(1);
+        assertThat(board.get(0, 1)).isEqualTo(0);
+        assertThat(board.get(1, 0)).isEqualTo(0);
+        assertThat(board.get(1, 1)).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("Замена поля отклоняет массив неправильной формы")
+    void replacementWithInvalidShapeIsRejected() {
+        Board board = new Board(2);
+        int[][] newCells1 = {{1, 0}};
+        int[][] newCells2 = {{1, 0}, {2}};
+        int[][] newCells3 = {{1, 0}, null};
+        assertThatThrownBy(() -> board.replaceCells(newCells1)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> board.replaceCells(newCells2)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> board.replaceCells(newCells3)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("Замена поля отклоняет отсутствующий массив")
+    void nullReplacementArrayIsRejected() {
+        Board board = new Board(2);
+        assertThatThrownBy(() -> board.replaceCells(null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("newCells");
+    }
 }

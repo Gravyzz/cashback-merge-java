@@ -25,8 +25,8 @@ class SeedTest {
                     size,
                     10,
                     List.of(new SpawnRule(1, new BigDecimal("0.85")), new SpawnRule(2, new BigDecimal("0.15"))));
-            GameState first = GameFactory.createInitialState(config, 42);
-            GameState second = GameFactory.createInitialState(config, 42);
+            GameState first = GameFactory.createGame(config, 42).getState();
+            GameState second = GameFactory.createGame(config, 42).getState();
             assertThat(first.getBoard().getSize()).isEqualTo(size);
             assertThat(second.getBoard().getSize()).isEqualTo(size);
             for (int row = 0; row < size; row++) {
@@ -43,8 +43,8 @@ class SeedTest {
     void sameConfigAndSeedProduceSameInitialBoard() {
         CampaignConfig config = new CampaignConfig(
                 4, 10, List.of(new SpawnRule(1, new BigDecimal("0.85")), new SpawnRule(2, new BigDecimal("0.15"))));
-        GameState firstState = GameFactory.createInitialState(config, 42);
-        GameState secondState = GameFactory.createInitialState(config, 42);
+        GameState firstState = GameFactory.createGame(config, 42).getState();
+        GameState secondState = GameFactory.createGame(config, 42).getState();
         for (int row = 0; row < firstState.getBoard().getSize(); row++) {
             for (int column = 0; column < firstState.getBoard().getSize(); column++) {
                 assertThat(firstState.getBoard().get(row, column))

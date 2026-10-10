@@ -53,6 +53,34 @@ public final class Board {
         return List.copyOf(positions);
     }
 
+    public void replaceCells(int[][] newCells) {
+        if (newCells == null) {
+            throw new IllegalArgumentException("newCells не должен быть null");
+        }
+        if (newCells.length != size) {
+            throw new IllegalArgumentException("Число строк должно быть равным size");
+        }
+
+        for (int[] newCell : newCells) {
+            if (newCell == null) {
+                throw new IllegalArgumentException("строка не должна быть null");
+            }
+            if (newCell.length != size) {
+                throw new IllegalArgumentException("Длина строки должна совпадать с size");
+            }
+            for (int i : newCell) {
+                if (i < 0) {
+                    throw new IllegalArgumentException("Значение клетки должно быть неотрицательным");
+                }
+            }
+        }
+        for (int row = 0; row < size; row++) {
+            for (int column = 0; column < size; column++) {
+                cells[row][column] = newCells[row][column];
+            }
+        }
+    }
+
     public Position createPosition(int row, int column) {
         return new Position(row, column);
     }

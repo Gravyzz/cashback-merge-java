@@ -30,7 +30,7 @@ class ConfigLoaderTest {
                 """;
         Path path = Files.writeString(tempDir.resolve("five-by-five.json"), json);
         CampaignConfig config = ConfigLoader.load(path);
-        Board board = GameFactory.createInitialState(config, 42).getBoard();
+        Board board = GameFactory.createGame(config, 42).getState().getBoard();
         assertThat(board.getSize()).isEqualTo(5);
         assertThat(board.getEmptyPositions()).hasSize(23);
         String[] rows = BoardRenderer.render(board).split(System.lineSeparator());

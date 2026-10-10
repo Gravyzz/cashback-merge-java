@@ -4,6 +4,7 @@ public final class GameState {
     private final Board board;
     private final int movesLimit;
     private int movesUsed;
+    private int score;
 
     public GameState(Board board, int movesLimit) {
         if (board == null) {
@@ -16,6 +17,7 @@ public final class GameState {
         this.board = board;
         this.movesLimit = movesLimit;
         this.movesUsed = 0;
+        this.score = 0;
     }
 
     public Board getBoard() {
@@ -34,10 +36,18 @@ public final class GameState {
         return movesUsed == movesLimit;
     }
 
-    public void recordValidMove() {
+    public void recordValidMove(int scoreGain) {
         if (isFinished()) {
             throw new IllegalStateException("Партия уже завершена");
         }
+        if (scoreGain < 0) {
+            throw new IllegalArgumentException("scoreGain не должен быть отрицательным");
+        }
+        score += scoreGain;
         movesUsed++;
+    }
+
+    public int getScore() {
+        return score;
     }
 }

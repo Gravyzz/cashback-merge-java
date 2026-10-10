@@ -8,7 +8,7 @@ public final class GameFactory {
 
     private GameFactory() {}
 
-    public static GameState createInitialState(CampaignConfig config, long seed) {
+    public static Game createGame(CampaignConfig config, long seed) {
         if (config == null) {
             throw new IllegalArgumentException("Конфиг должен существовать");
         }
@@ -18,6 +18,8 @@ public final class GameFactory {
         for (int i = 0; i < INITIAL_TILES; i++) {
             spawner.spawn(board);
         }
-        return new GameState(board, config.getMovesLimit());
+        GameState gameState = new GameState(board, config.getMovesLimit());
+        MoveEngine engine = new MoveEngine(spawner);
+        return new Game(gameState, engine);
     }
 }

@@ -17,7 +17,7 @@ class GameFactoryTest {
     void initialBoardUsesConfiguredSize() {
         for (int size : new int[] {2, 3, 5}) {
             CampaignConfig config = new CampaignConfig(size, 7, List.of(new SpawnRule(2, BigDecimal.ONE)));
-            GameState state = GameFactory.createInitialState(config, 42);
+            GameState state = GameFactory.createGame(config, 42).getState();
             Board board = state.getBoard();
             assertThat(board.getSize()).isEqualTo(size);
             assertThat(board.getEmptyPositions()).hasSize(size * size - 2);
@@ -39,7 +39,7 @@ class GameFactoryTest {
     @DisplayName("Начальное состояние содержит две плитки и настроенный лимит ходов")
     void initialStateContainsTwoTilesAndConfiguredMoveLimit() {
         CampaignConfig config = new CampaignConfig(4, 10, List.of(new SpawnRule(1, BigDecimal.ONE)));
-        GameState gameState = GameFactory.createInitialState(config, 42);
+        GameState gameState = GameFactory.createGame(config, 42).getState();
         assertThat(gameState.getBoard().getEmptyPositions()).hasSize(14);
         assertThat(gameState.getMovesUsed()).isZero();
         assertThat(gameState.getMovesRemaining()).isEqualTo(10);
@@ -47,10 +47,31 @@ class GameFactoryTest {
     }
 
     @Test
+    @DisplayName("Созданная фабрикой игра выполняет ход и обновляет своё состояние")
+    void createdGameAppliesMoveToItsState() {
+        CampaignConfig config = new CampaignConfig(3, 5, List.of(new SpawnRule(1, BigDecimal.ONE)));
+        Game game = GameFactory.createGame(config, 42);
+        GameState state = game.getState();
+        Board board = state.getBoard();
+        // Задаём известное поле, чтобы проверять связь компонентов, а не случайное расположение.
+        board.replaceCells(new int[][] {{1, 1, 0}, {0, 0, 0}, {0, 0, 0}});
+
+        MoveResult result = game.applyMove(Direction.LEFT);
+
+        assertThat(game.getState()).isSameAs(state);
+        assertThat(result.changed()).isTrue();
+        assertThat(result.scoreGain()).isEqualTo(2);
+        assertThat(state.getScore()).isEqualTo(2);
+        assertThat(state.getMovesUsed()).isEqualTo(1);
+        assertThat(state.getMovesRemaining()).isEqualTo(4);
+        assertThat(board.get(0, 0)).isEqualTo(2);
+        assertThat(board.getEmptyPositions()).hasSize(7);
+    }
+
+    @Test
     @DisplayName("Начальное состояние нельзя создать без конфига")
     void nullConfigIsRejected() {
         CampaignConfig config = null;
-        assertThatThrownBy(() -> GameFactory.createInitialState(config, 42))
-                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> GameFactory.createGame(config, 42)).isInstanceOf(IllegalArgumentException.class);
     }
 }

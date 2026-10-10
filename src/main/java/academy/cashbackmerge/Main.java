@@ -3,8 +3,10 @@ package academy.cashbackmerge;
 import academy.cashbackmerge.config.CampaignConfig;
 import academy.cashbackmerge.config.ConfigLoader;
 import academy.cashbackmerge.console.BoardRenderer;
+import academy.cashbackmerge.game.Direction;
+import academy.cashbackmerge.game.Game;
 import academy.cashbackmerge.game.GameFactory;
-import academy.cashbackmerge.game.GameState;
+import academy.cashbackmerge.game.MoveResult;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
@@ -25,8 +27,15 @@ public final class Main {
 
         try {
             CampaignConfig config = ConfigLoader.load(DEFAULT_CONFIG_PATH);
-            GameState state = GameFactory.createInitialState(config, DEFAULT_SEED);
-            System.out.println(BoardRenderer.render(state.getBoard()));
+            Game game = GameFactory.createGame(config, DEFAULT_SEED);
+            System.out.println(BoardRenderer.render(game.getState().getBoard()));
+            MoveResult result = game.applyMove(Direction.UP);
+            System.out.println("После хода UP:");
+            System.out.println(BoardRenderer.render(game.getState().getBoard()));
+            System.out.println(result.changed() + " - изменилось ли поле");
+            System.out.println(result.scoreGain() + " - очки за ход");
+            System.out.println("Общий счет - " + game.getState().getScore());
+            System.out.println("Оставшиеся ходы: " + game.getState().getMovesRemaining());
         } catch (IOException exception) {
             throw new UncheckedIOException("Не удалось загрузить конфиг " + DEFAULT_CONFIG_PATH, exception);
         }
