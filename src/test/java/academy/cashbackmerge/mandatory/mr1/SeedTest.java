@@ -1,15 +1,18 @@
 package academy.cashbackmerge.mandatory.mr1;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import academy.cashbackmerge.config.CampaignConfig;
+import academy.cashbackmerge.config.RewardTier;
 import academy.cashbackmerge.config.SpawnRule;
 import academy.cashbackmerge.game.GameFactory;
 import academy.cashbackmerge.game.GameState;
+import academy.cashbackmerge.simulation.BatchSimulator;
+import academy.cashbackmerge.simulation.GameSimulationResult;
+import academy.cashbackmerge.simulation.SimulationReport;
+import academy.cashbackmerge.simulation.SimulationReportCalculator;
 import java.math.BigDecimal;
 import java.util.List;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +27,10 @@ class SeedTest {
             CampaignConfig config = new CampaignConfig(
                     size,
                     10,
-                    List.of(new SpawnRule(1, new BigDecimal("0.85")), new SpawnRule(2, new BigDecimal("0.15"))));
+                    List.of(new SpawnRule(1, new BigDecimal("0.85")), new SpawnRule(2, new BigDecimal("0.15"))),
+                    List.of(new RewardTier(32, 2000)),
+                    32,
+                    new BigDecimal("0.20"));
             GameState first = GameFactory.createGame(config, 42).getState();
             GameState second = GameFactory.createGame(config, 42).getState();
             assertThat(first.getBoard().getSize()).isEqualTo(size);
@@ -42,7 +48,12 @@ class SeedTest {
     @DisplayName("Одинаковый конфиг и seed дают одинаковое начальное поле")
     void sameConfigAndSeedProduceSameInitialBoard() {
         CampaignConfig config = new CampaignConfig(
-                4, 10, List.of(new SpawnRule(1, new BigDecimal("0.85")), new SpawnRule(2, new BigDecimal("0.15"))));
+                4,
+                10,
+                List.of(new SpawnRule(1, new BigDecimal("0.85")), new SpawnRule(2, new BigDecimal("0.15"))),
+                List.of(new RewardTier(32, 2000)),
+                32,
+                new BigDecimal("0.20"));
         GameState firstState = GameFactory.createGame(config, 42).getState();
         GameState secondState = GameFactory.createGame(config, 42).getState();
         for (int row = 0; row < firstState.getBoard().getSize(); row++) {
@@ -54,9 +65,28 @@ class SeedTest {
     }
 
     @Test
-    @Disabled("MR3: реализуй тест и удали эту строку")
     @DisplayName("Одинаковый конфиг, seed и стратегия дают одинаковый отчёт симуляции")
     void sameInputsProduceSameSimulationReport() {
-        fail("Тест не реализован");
+        CampaignConfig config = new CampaignConfig(
+                4,
+                10,
+                List.of(new SpawnRule(1, new BigDecimal("0.85")), new SpawnRule(2, new BigDecimal("0.15"))),
+                List.of(
+                        new RewardTier(2, 0),
+                        new RewardTier(4, 50),
+                        new RewardTier(8, 150),
+                        new RewardTier(16, 500),
+                        new RewardTier(32, 2000)),
+                32,
+                new BigDecimal("0.20"));
+        long seed = 42L;
+        int players = 100;
+
+        List<GameSimulationResult> firstResults = BatchSimulator.simulateAllGames(config, players, seed);
+        List<GameSimulationResult> secondResults = BatchSimulator.simulateAllGames(config, players, seed);
+        SimulationReport firstReport = SimulationReportCalculator.calculate(firstResults, config, seed, "random");
+        SimulationReport secondReport = SimulationReportCalculator.calculate(secondResults, config, seed, "random");
+
+        assertThat(firstReport).isEqualTo(secondReport);
     }
 }

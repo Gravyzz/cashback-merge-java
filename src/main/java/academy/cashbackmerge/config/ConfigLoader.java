@@ -23,8 +23,23 @@ public final class ConfigLoader {
         int boardSize = readRequiredInt(root, "boardSize");
         int movesLimit = readRequiredInt(root, "movesLimit");
         List<SpawnRule> spawnRules = readSpawnRules(root);
+        List<RewardTier> rewardTiers = readRewardTable(root);
+        int maxRewardCashback;
+        BigDecimal maxRewardAllowedRate;
+        try {
+            maxRewardCashback = Integer.parseInt(readRequiredString(root, "maxRewardCashback"));
+        } catch (NumberFormatException exception) {
+            throw new IllegalArgumentException("Некорректное число в поле maxRewardCashback", exception);
+        }
 
-        return new CampaignConfig(boardSize, movesLimit, spawnRules);
+        try {
+            maxRewardAllowedRate = new BigDecimal(readRequiredString(root, "maxRewardAllowedRate"));
+        } catch (NumberFormatException exception) {
+            throw new IllegalArgumentException("Некорректное число в поле maxRewardAllowedRate", exception);
+        }
+
+        return new CampaignConfig(
+                boardSize, movesLimit, spawnRules, rewardTiers, maxRewardCashback, maxRewardAllowedRate);
     }
 
     private static JsonNode readJson(Path path) throws IOException {
@@ -93,5 +108,40 @@ public final class ConfigLoader {
             spawnRules.add(rule);
         }
         return spawnRules;
+    }
+
+    private static List<RewardTier> readRewardTable(JsonNode root) {
+        JsonNode rewardTableNode = root.get("rewardTable");
+        if (rewardTableNode == null || !rewardTableNode.isArray()) {
+            throw new IllegalArgumentException("Поле rewardTable должно быть массивом");
+        }
+        List<RewardTier> rewardTiers = new ArrayList<>();
+        for (int index = 0; index < rewardTableNode.size(); index++) {
+            JsonNode rewardNode = rewardTableNode.get(index);
+            if (!rewardNode.isObject()) {
+                throw new IllegalArgumentException("Элемент rewardTable[" + index + "] должен быть JSON-объектом");
+            }
+
+            String cashbackText = readRequiredString(rewardNode, "cashback");
+            String rewardText = readRequiredString(rewardNode, "reward");
+            int cashback;
+            int reward;
+            try {
+                cashback = Integer.parseInt(cashbackText);
+            } catch (NumberFormatException exception) {
+                throw new IllegalArgumentException(
+                        "Некорректное число в поле rewardTable[" + index + "].cashback: " + cashbackText, exception);
+            }
+            try {
+                reward = Integer.parseInt(rewardText);
+            } catch (NumberFormatException exception) {
+                throw new IllegalArgumentException(
+                        "Некорректное число в поле rewardTable[" + index + "].reward: " + rewardText, exception);
+            }
+
+            RewardTier tier = new RewardTier(cashback, reward);
+            rewardTiers.add(tier);
+        }
+        return rewardTiers;
     }
 }

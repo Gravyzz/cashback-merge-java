@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import academy.cashbackmerge.config.CampaignConfig;
+import academy.cashbackmerge.config.RewardTier;
 import academy.cashbackmerge.config.SpawnRule;
 import java.math.BigDecimal;
 import java.util.List;
@@ -16,7 +17,13 @@ class GameFactoryTest {
     @DisplayName("Фабрика использует размер из конфига и размещает ровно две настроенные плитки")
     void initialBoardUsesConfiguredSize() {
         for (int size : new int[] {2, 3, 5}) {
-            CampaignConfig config = new CampaignConfig(size, 7, List.of(new SpawnRule(2, BigDecimal.ONE)));
+            CampaignConfig config = new CampaignConfig(
+                    size,
+                    7,
+                    List.of(new SpawnRule(2, BigDecimal.ONE)),
+                    List.of(new RewardTier(32, 2000)),
+                    32,
+                    new BigDecimal("0.20"));
             GameState state = GameFactory.createGame(config, 42).getState();
             Board board = state.getBoard();
             assertThat(board.getSize()).isEqualTo(size);
@@ -38,7 +45,13 @@ class GameFactoryTest {
     @Test
     @DisplayName("Начальное состояние содержит две плитки и настроенный лимит ходов")
     void initialStateContainsTwoTilesAndConfiguredMoveLimit() {
-        CampaignConfig config = new CampaignConfig(4, 10, List.of(new SpawnRule(1, BigDecimal.ONE)));
+        CampaignConfig config = new CampaignConfig(
+                4,
+                10,
+                List.of(new SpawnRule(1, BigDecimal.ONE)),
+                List.of(new RewardTier(32, 2000)),
+                32,
+                new BigDecimal("0.20"));
         GameState gameState = GameFactory.createGame(config, 42).getState();
         assertThat(gameState.getBoard().getEmptyPositions()).hasSize(14);
         assertThat(gameState.getMovesUsed()).isZero();
@@ -49,7 +62,13 @@ class GameFactoryTest {
     @Test
     @DisplayName("Созданная фабрикой игра выполняет ход и обновляет своё состояние")
     void createdGameAppliesMoveToItsState() {
-        CampaignConfig config = new CampaignConfig(3, 5, List.of(new SpawnRule(1, BigDecimal.ONE)));
+        CampaignConfig config = new CampaignConfig(
+                3,
+                5,
+                List.of(new SpawnRule(1, BigDecimal.ONE)),
+                List.of(new RewardTier(32, 2000)),
+                32,
+                new BigDecimal("0.20"));
         Game game = GameFactory.createGame(config, 42);
         GameState state = game.getState();
         Board board = state.getBoard();

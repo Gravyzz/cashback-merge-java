@@ -25,7 +25,10 @@ class ConfigLoaderTest {
                 {
                   "boardSize": 5,
                   "movesLimit": 10,
-                  "spawnRules": [{"cashback": "1", "probability": "1"}]
+                  "spawnRules": [{"cashback": "1", "probability": "1"}],
+                  "rewardTable": [{"cashback": "32", "reward": "2000"}],
+                  "maxRewardCashback": "32",
+                  "maxRewardAllowedRate": "0.20"
                 }
                 """;
         Path path = Files.writeString(tempDir.resolve("five-by-five.json"), json);
@@ -49,6 +52,15 @@ class ConfigLoaderTest {
         assertThat(config.getMovesLimit()).isEqualTo(100);
         assertThat(config.getSpawnRules())
                 .containsExactly(new SpawnRule(1, new BigDecimal("0.85")), new SpawnRule(2, new BigDecimal("0.15")));
+        assertThat(config.getRewardTable())
+                .containsExactly(
+                        new RewardTier(2, 0),
+                        new RewardTier(4, 50),
+                        new RewardTier(8, 150),
+                        new RewardTier(16, 500),
+                        new RewardTier(32, 2000));
+        assertThat(config.getMaxRewardCashback()).isEqualTo(32);
+        assertThat(config.getMaxRewardAllowedRate()).isEqualByComparingTo("0.20");
     }
 
     @Test

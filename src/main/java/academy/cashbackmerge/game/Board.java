@@ -129,4 +129,16 @@ public final class Board {
             return 31 * result + column;
         }
     }
+
+    public int getMaxCashback() {
+        int maxCashback = 0;
+        for (int row = 0; row < size; row++) {
+            for (int column = 0; column < size; column++) {
+                if (cells[row][column] > maxCashback) {
+                    maxCashback = cells[row][column];
+                }
+            }
+        }
+        return maxCashback;
+    }
 }

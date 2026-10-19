@@ -23,3 +23,6 @@ desktop.ini
 *.hprof
 hs_err_pid*
 replay_pid*
+
+# Локальный отчёт команды из README; пример для репозитория хранится в reports/.
+/report.md
